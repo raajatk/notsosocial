@@ -58,24 +58,37 @@ var MainService = {
     var receiver_id = req.body.receiver_id;
     var sender_id = req.logged_in_user._id;
 
-    domain.Friend.count({receiver_id:receiver_id,sender_id:sender_id},(err,count)=>{
-      if(!err && count==0){
-        var friend_request_obj = new domain.Friend({receiver_id:receiver_id,sender_id:sender_id});
-        friend_request_obj.save((err,results)=>{
-          if(!err){
-            res.send({msg:"Friend Request Sent Successfully"})
-          }else {
-            res.sendStatus(500);
-          }
-        })
-      }else {
-        if(count>0){
-          res.send({msg:"Friend Request Sent Already"})
-        }else if (err) {
-          res.sendStatus(500);
+    if(receiver_id != sender_id){
+      domain.User.count({is_account_active:true,_id:receiver_id},(err,count)=>{
+        if(!err && count>0){
+          domain.Friend.count({receiver_id:receiver_id,sender_id:sender_id},(err,count)=>{
+            if(!err && count==0){
+              var friend_request_obj = new domain.Friend({receiver_id:receiver_id,sender_id:sender_id});
+              friend_request_obj.save((err,results)=>{
+                if(!err){
+                  res.send({msg:"Friend Request Sent Successfully"})
+                }else {
+                  res.sendStatus(500);
+                }
+              })
+            }else {
+              if(count>0){
+                res.send({msg:"Friend Request Sent Already"})
+              }else if (err) {
+                res.sendStatus(500);
+              }
+            }
+          })
+        }else {
+          res.send({msg:"User Does Not Exist"})
         }
-      }
-    })
+      })
+    }else {
+      res.send({msg:"User Can't Send Request to Self"})
+    }
+
+
+
 
 
   }
