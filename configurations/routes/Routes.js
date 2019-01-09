@@ -3,9 +3,10 @@ var router = express.Router();
 var main_service = require('../../application/services/MainService.js')
 var authentication_middleware = require('../../application/middlewares/Authentication.js')
 
+
 /* GET home page. */
 router.get('/v2/hello',
-          (req,res,next)=>{authentication_middleware(req,res,next)},
+          function(req, res, next){authentication_middleware(req,res,next)},
           main_service.hello_world
           );
 
